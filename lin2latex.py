@@ -38,6 +38,8 @@ def lin2latex(dataframe, spins, labels=None, deluxe=False):
         labels = [key for key in dataframe.keys()]
         for label in ["Frequency", "Uncertainty", "_"]:
             labels.remove(label)
+        quant_types = [label.replace("'", "") for label in labels]
+        group, upper, lower = generate_labels(labels)
     else:
         # Generate the labeling
         group, upper, lower = generate_labels(labels)
@@ -81,7 +83,14 @@ def lin2latex(dataframe, spins, labels=None, deluxe=False):
     filtered_df = dataframe[columns]
     # Sort the dataframe by J
     filtered_df.sort_values(["J'", "J''"])
+    # Build up the table data
     for index, row in filtered_df.iterrows():
+        line = list()
+        for up, low in zip(upper, lower):
+            pair = list(row[[up, low]].astype(str))
+            line.append(
+                "${0} \\rightarrow {1} $".format(*pair)
+                )
         values = list(row.astype(str))
         # We want to skip printing J transitions if they're the same
         if index == 0:
@@ -91,16 +100,24 @@ def lin2latex(dataframe, spins, labels=None, deluxe=False):
             # If the current values of J match the previous, then
             # set them to blank so we don't print them
             if Jcurr == Jlast:
-                values[0] = " "
-                values[1] = " "
+                line[0] = " \\dots "
             Jlast = Jcurr
-        data_str+= " & ".join(values) + "\\\\\n"
-    column_format = ["c"] * len(columns)
+        last = row[["Frequency", "Uncertainty"]].astype(str)
+        last[-1]+="\\\\\n"
+        line.extend(last)
+        data_str+= " & ".join(line)
+    # Write out the column formatting in the table
+    # Half the total number of columns, and another two for freq/unc
+    column_format = ["c"] * int((len(columns) / 2) + 1)
     column_format = "{" + " ".join(column_format) + "}"
+    header = ""
+    for up, low in zip(upper, lower):
+        header+="${0} \\rightarrow {1}$ & ".format(*[up, low])
+    header+="Frequency & Uncertainty \\\\"
     data_dict = {
         "colformat": column_format,    # centered
         "data": data_str,
-        "header": " & ".join(columns) + "\\\\"
+        "header": header 
     }
     return template.format_map(data_dict)
 
@@ -157,6 +174,7 @@ def read_lin(filepath, labels, spins):
     # Get rid of frequency
     hyperfine_labels.remove("Frequency")
     return df
+
 
 @click.command()
 @click.argument(
