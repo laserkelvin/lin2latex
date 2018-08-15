@@ -100,7 +100,7 @@ def lin2latex(dataframe, spins, labels=None, deluxe=False):
             # If the current values of J match the previous, then
             # set them to blank so we don't print them
             if Jcurr == Jlast:
-                line[0] = " \\dots "
+                line[0] = " $\\dots$ "
             Jlast = Jcurr
         last = row[["Frequency", "Uncertainty"]].astype(str)
         last[-1]+="\\\\\n"
