@@ -13,6 +13,7 @@ import pandas as pd
 import click
 import numpy as np
 
+
 def lin2latex(dataframe, spins, labels=None, deluxe=False):
     """ Function that will convert a dataframe into a LaTeX
         formatted table. Optionally, you can select specific
@@ -87,7 +88,14 @@ def lin2latex(dataframe, spins, labels=None, deluxe=False):
     for index, row in filtered_df.iterrows():
         line = list()
         for up, low in zip(upper, lower):
-            pair = list(row[[up, low]].astype(str))
+            pair = row[[up, low]]
+            # Check if quantum numbers can be integers
+            check = [value.is_integer() for value in pair]
+            if all(check) is True:
+                format_type = int
+            else:
+                format_type = float
+            pair = list(pair.astype(format_type))
             line.append(
                 "${0} \\rightarrow {1} $".format(*pair)
                 )
@@ -102,7 +110,8 @@ def lin2latex(dataframe, spins, labels=None, deluxe=False):
             if Jcurr == Jlast:
                 line[0] = " $\\dots$ "
             Jlast = Jcurr
-        last = row[["Frequency", "Uncertainty"]].astype(str)
+        last = row[["Frequency", "Uncertainty"]].map("{:,.4f}".format)
+        last = last.astype(str)
         last[-1]+="\\\\\n"
         line.extend(last)
         data_str+= " & ".join(line)
