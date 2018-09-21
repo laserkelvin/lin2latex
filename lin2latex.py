@@ -110,10 +110,11 @@ def lin2latex(dataframe, spins, labels=None, deluxe=False):
             if Jcurr == Jlast:
                 line[0] = " $\\dots$ "
             Jlast = Jcurr
-        last = row[["Frequency", "Uncertainty"]].map("{:,.4f}".format)
-        last = last.astype(str)
-        last[-1]+="\\\\\n"
-        line.extend(last)
+        # Make frequencies and uncertainties formatted with 3/4 decimal places
+        #last = row[["Frequency", "Uncertainty"]].map("{:,.4f}".format)
+        last = list(row[["Frequency", "Uncertainty"]])
+        last = "{:,.4f} & {:.3f} \\\\\n".format(*last)
+        line.append(last)
         data_str+= " & ".join(line)
     # Write out the column formatting in the table
     # Half the total number of columns, and another two for freq/unc
