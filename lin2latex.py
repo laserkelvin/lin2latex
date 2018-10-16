@@ -14,7 +14,7 @@ import click
 import numpy as np
 
 
-def lin2latex(dataframe, spins, labels=None, deluxe=False):
+def lin2latex(dataframe, spins, labels=None, deluxe=False, arrows=True):
     """ Function that will convert a dataframe into a LaTeX
         formatted table. Optionally, you can select specific
         quantum numbers to include in the table.
@@ -54,36 +54,41 @@ def lin2latex(dataframe, spins, labels=None, deluxe=False):
     # Template for a deluxe table used by ApJ and others
     if deluxe is True:
         template = """
-        \\begin{{deluxetable}}{colformat}
-            \\tablecaption{{Something intelligent}}
-            \\tablehead{{header}}
+\\begin{{deluxetable}}{colformat}
+    \\tablecaption{{Something intelligent}}
+    \\tablehead{{header}}
             
-            \\startdata
-                {data}
-            \\enddata
-        \\end{{deluxetable}}
+    \\startdata
+    {data}
+    \\enddata
+\\end{{deluxetable}}
         """
     # Template for a normal LaTeX table
     elif deluxe is False:
         template = """
-        \\begin{{table}}
-            \\begin{{center}}
-                \\caption{{Something intelligent}}
-                \\begin{{tabular}}{colformat}
-                {header}
-                \\toprule
+\\begin{{table}}
+    \\begin{{center}}
+        \\caption{{Something intelligent}}
+        \\begin{{tabular}}{colformat}
+            {header}
+            \\toprule
                 
-                {data}
-                \\bottomrule
-                \\end{{tabular}}
-            \\end{{center}}
-        \\end{{table}}
+            {data}
+            \\bottomrule
+        \\end{{tabular}}
+    \\end{{center}}
+\\end{{table}}
         """
     data_str = ""
     # Take only what we want
     filtered_df = dataframe[columns]
     # Sort the dataframe by J
-    filtered_df.sort_values(["J'", "J''"])
+    filtered_df.sort_values(["Frequency"], ascending=True, inplace=True)
+    # Whether to use arrows or dashes for delimiting
+    if arrows:
+        delimiter = "\\rightarrow"
+    else:
+        delimiter = "-"
     # Build up the table data
     for index, row in filtered_df.iterrows():
         line = list()
@@ -96,9 +101,13 @@ def lin2latex(dataframe, spins, labels=None, deluxe=False):
             else:
                 format_type = float
             pair = list(pair.astype(format_type))
+            formatted_pair = [str(pair[0]), delimiter, str(pair[1])]
             line.append(
-                "${0} \\rightarrow {1} $".format(*pair)
+                "$" + " ".join(formatted_pair) + "$"
                 )
+           # line.append(
+           #     "${0} \\rightarrow {2} $".format(*pair)
+           #     )
         values = list(row.astype(str))
         # We want to skip printing J transitions if they're the same
         if index == 0:
@@ -213,7 +222,12 @@ def read_lin(filepath, labels, spins):
     default="table.tex",
     help="Target file to output the table to."
     )
-def run_lin2latex(filepath, labels, spins, deluxe, select, output):
+@click.option(
+    "--arrows",
+    is_flag=True,
+    help="Specifies whether arrows are used to denote emission. If not, a dash is used."
+    )
+def run_lin2latex(filepath, labels, spins, deluxe, select, output, arrows):
     """ lin2latex.py
 
         This script will take a .lin file and convert it into a formatted
@@ -265,7 +279,7 @@ def run_lin2latex(filepath, labels, spins, deluxe, select, output):
         deluxe = True
     else:
         deluxe = False
-    table_str = lin2latex(df, spins, select, deluxe)
+    table_str = lin2latex(df, spins, select, deluxe, arrows)
     with open(output, "w+") as write_file:
         write_file.write(table_str)
 
