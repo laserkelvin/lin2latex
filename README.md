@@ -10,12 +10,12 @@ environment or a `deluxetable`.
 
 1. Install the required Python packages by typing
 
-`pip install -r requirements.txt`
+`pip install .`
 
-2. Optional: if you want the script accessible from anywhere, add it to a directory
+1. Optional: if you want the script accessible from anywhere, add it to a directory
 in your path. The simplest way would be with `sudo` access:
 
-`sudo cp lin2latex.py /usr/local/bin/`
+`sudo cp scripts/lin2latex.py /usr/local/bin/`
 
 # Usage
 

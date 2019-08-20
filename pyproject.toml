@@ -5,6 +5,8 @@ description = ""
 authors = ["Kelvin <kin.long.kelvin.lee@gmail.com>"]
 readme = "README.md"
 include = ["lin2latex/template.tex"]
+license = "MIT"
+ignore = ["*.pyc]
 
 [tool.poetry.dependencies]
 python = "^3.7"
@@ -14,6 +16,9 @@ pandas = "^0.25.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.0"
+
+[tool.poetry.scripts]
+lin2latex = "lin2latex.cli:run_lin2latex"
 
 [build-system]
 requires = ["poetry>=0.12"]

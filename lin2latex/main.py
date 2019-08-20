@@ -40,24 +40,30 @@ class LinFile:
             uncertainty columns.            
         """
         for line in self.contents:
-            comment = comment_check(line)
-            split_line = line.split()
-            # Ignore the scan number or any other comment
-            if comment is not None:
-                split_line = split_line[:comment]
-            expected = len(self.full_labels)
-            if expected != len(split_line):
-                raise ValueError(
-                    f"Got {len(split_line)} values, not matching expected for {self.mol_type} ({expected})."
-                    )
-            transition = {
-                self.full_labels[index]: value for index, value in enumerate(split_line)
-                }
-            for label in ["Frequency", "Uncertainty"]:
-                transition[label] = float(transition[label])
-            self.data.append(transition)
+            if len(line) != 0:
+                comment = comment_check(line)
+                split_line = line.split()
+                # Ignore the scan number or any other comment
+                if comment is not None:
+                    split_line = split_line[:comment]
+                expected = len(self.full_labels)
+                if expected != len(split_line):
+                    raise ValueError(
+                        f"Got {len(split_line)} values, not matching expected for {self.mol_type} ({expected})."
+                        )
+                transition = {
+                    self.full_labels[index]: value for index, value in enumerate(split_line)
+                    }
+                for label in ["Frequency", "Uncertainty"]:
+                    transition[label] = float(transition[label])
+                self.data.append(transition)
 
     def write_data(self, filepath=None):
+        """
+        Class method to format the .lin file contents into a three column
+        table format, where it's upper state to lower state, frequency, and
+        uncertainty.
+        """
         header = ["Transition", "Frequency", "Uncertainty"]
         header = " & ".join(header) + "\\\\ \n"
         try:
