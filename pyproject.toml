@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "lin2latex"
+version = "0.1.0"
+description = ""
+authors = ["Kelvin <kin.long.kelvin.lee@gmail.com>"]
+readme = "README.md"
+include = ["lin2latex/template.tex"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+click = "^7.0"
+numpy = "^1.17"
+pandas = "^0.25.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^3.0"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
